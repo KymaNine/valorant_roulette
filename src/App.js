@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 import AgentCard from './components/AgentCard';
 
@@ -292,8 +292,8 @@ const LockIcon = styled.div`
 const AgentSelectCard = styled.button`
   position: relative;
   padding: 5px;
-  background: ${props => props.selected ? 'rgba(255, 70, 85, 0.1)' : 'rgba(255, 255, 255, 0.05)'};
-  border: 2px solid ${props => props.selected ? '#ff4655' : 'rgba(255, 70, 85, 0.2)'};
+  background: ${props => props.$selected ? 'rgba(255, 70, 85, 0.1)' : 'rgba(255, 255, 255, 0.05)'};
+  border: 2px solid ${props => props.$selected ? '#ff4655' : 'rgba(255, 70, 85, 0.2)'};
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -303,15 +303,15 @@ const AgentSelectCard = styled.button`
   align-items: center;
   justify-content: space-between;
   opacity: ${props => {
-    if (props.rolling || props.hasSelectedAgent) {
-      return props.highlighted ? 1 : 0.3;
+    if (props.$rolling || props.$hasSelectedAgent) {
+      return props.$highlighted ? 1 : 0.3;
     }
     return 1;
   }};
 
   &:hover {
-    transform: ${props => (!props.rolling && props.selected && !props.hasSelectedAgent) ? 'translateY(-2px)' : 'none'};
-    border-color: ${props => props.selected ? '#ff4655' : 'rgba(255, 70, 85, 0.2)'};
+    transform: ${props => (!props.$rolling && props.$selected && !props.$hasSelectedAgent) ? 'translateY(-2px)' : 'none'};
+    border-color: ${props => props.$selected ? '#ff4655' : 'rgba(255, 70, 85, 0.2)'};
   }
 
   &::before {
@@ -322,8 +322,8 @@ const AgentSelectCard = styled.button`
     right: 0;
     bottom: 0;
     background: ${props => {
-      if (props.highlighted) return 'none';
-      if (props.selected) return props.hasSelectedAgent ? 'rgba(0, 0, 0, 0.7)' : 'none';
+      if (props.$highlighted) return 'none';
+      if (props.$selected) return props.$hasSelectedAgent ? 'rgba(0, 0, 0, 0.7)' : 'none';
       return 'rgba(0, 0, 0, 0.7)';
     }};
     transition: background 0.3s ease;
@@ -506,8 +506,14 @@ function App() {
   const [selectedAbility, setSelectedAbility] = useState(null);
   const [enabledAgents, setEnabledAgents] = useState(new Set());
   const [showDetails, setShowDetails] = useState(false);
+  const initCount = useRef(0);
 
   useEffect(() => {
+    if (initCount.current === 0) {
+      console.log("(c) 2025 KYMA_CAT");
+    }
+    initCount.current += 1;
+
     fetch('https://valorant-api.com/v1/agents?isPlayableCharacter=true')
       .then(response => response.json())
       .then(data => {
@@ -596,10 +602,10 @@ function App() {
             return (
               <CardComponent
                 key={agent.uuid}
-                selected={isSelected}
-                rolling={isRolling}
-                highlighted={isHighlighted}
-                hasSelectedAgent={!!selectedAgent}
+                $selected={isSelected}
+                $rolling={isRolling}
+                $highlighted={isHighlighted}
+                $hasSelectedAgent={!!selectedAgent}
                 onClick={() => !isRolling && toggleAgent(agent.uuid)}
                 style={{
                   animation: isRolling && isHighlighted ? 'pulse 0.3s ease-in-out infinite' : 'none'
@@ -621,7 +627,7 @@ function App() {
           })}
           <SelectAllButton 
             onClick={toggleAllAgents}
-            selected={enabledAgents.size === agents.length}
+            $selected={enabledAgents.size === agents.length}
           >
             {enabledAgents.size === agents.length ? 'DESELECT ALL' : 'SELECT ALL'}
           </SelectAllButton>
