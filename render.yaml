@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: kyma-valorant-roulette
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    nodeVersion: 18.x.x 
